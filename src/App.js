@@ -1,3 +1,3 @@
 export default function Square() {
-  return <button className="square"></button>
+  return <button className="square">X</button>;
 }
