@@ -64,6 +64,8 @@ export default function Game() {
     Array(9).fill(null)
   ]);
   const [currentMove, setCurrentMove] = useState(0);
+  const [isMovesReverse, setIsMovesReverse] = useState(false);
+
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
 
@@ -81,7 +83,11 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
-  const moves = history.map((squares, move) => {
+  function movesReverse() {
+    setIsMovesReverse(!isMovesReverse);
+  }
+
+  let moves = history.map((squares, move) => {
     let description;
     let element = null;
 
@@ -108,6 +114,10 @@ export default function Game() {
     );
   });
 
+  if (isMovesReverse) {
+    moves = moves.reverse();
+  }
+
   return (
     <div className="game">
       <div className="game-board">
@@ -118,6 +128,7 @@ export default function Game() {
         />
       </div>
       <div className="game-info">
+        <button onClick={movesReverse}>Reverse</button>
         <ol>{moves}</ol>
       </div>
     </div>
