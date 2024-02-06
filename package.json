@@ -1,5 +1,5 @@
 {
-  "name": "react.dev",
+  "name": "tic-tac-toe",
   "version": "0.0.0",
   "main": "/src/index.js",
   "scripts": {

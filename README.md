@@ -1,2 +1,2 @@
-This is a game "tic tac toe".
-Stack: React.
+# This is a game "tic tac toe".
+## Stack: React.
