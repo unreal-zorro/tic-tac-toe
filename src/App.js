@@ -1,16 +1,15 @@
 import { useState } from "react";
 
-function Square({ value, onSquareClick }) {
+function Square({ value, onSquareClick, isWinner }) {
   return (
-    <button className="square" onClick={onSquareClick}>
+    <button className={`square ${ isWinner ? 'winner': '' }`} onClick={onSquareClick}>
       {value}
     </button>
   );
 }
 
-
 function Board({ xIsNext, squares, onPlay }) {
-  function handleClick(i) {
+  function handleClick(i, [row, col]) {
     if (squares[i] || calculateWinner(squares)) {
       return;
     }
@@ -23,14 +22,14 @@ function Board({ xIsNext, squares, onPlay }) {
       nextSquares[i] = "O";
     }
 
-    onPlay(nextSquares);
+    onPlay(nextSquares, [row, col]);
   }
 
   const winner = calculateWinner(squares);
   let status;
 
   if (winner) {
-    status = 'Winner: ' + winner;
+    status = 'Winner: ' + squares[winner[0]];
   } else {
     status = 'Next player: ' + (xIsNext ? "X" : "O");
   }
@@ -48,7 +47,8 @@ function Board({ xIsNext, squares, onPlay }) {
               return (
                 <Square
                   key={i * 3 + j}
-                  value={squares[i * 3 + j]} onSquareClick={() => handleClick(i * 3 + j)}
+                  value={squares[i * 3 + j]} onSquareClick={() => handleClick(i * 3 + j, [i, j])}
+                  isWinner={winner && winner.includes(i * 3 + j)}
                 />
               );
             })}
@@ -61,18 +61,26 @@ function Board({ xIsNext, squares, onPlay }) {
 
 export default function Game() {
   const [history, setHistory] = useState([
-    Array(9).fill(null)
+    {
+      squares: Array(9).fill(null),
+      row: null,
+      col: null
+    }
   ]);
   const [currentMove, setCurrentMove] = useState(0);
   const [isMovesReverse, setIsMovesReverse] = useState(false);
 
   const xIsNext = currentMove % 2 === 0;
-  const currentSquares = history[currentMove];
+  const currentSquares = history[currentMove].squares;
 
-  function handlePlay(nextSquares) {
+  function handlePlay(nextSquares, [row, col]) {
     const nextHistory = [
       ...history.slice(0, currentMove + 1),
-      nextSquares
+      {
+        squares: nextSquares,
+        row,
+        col
+      }
     ];
 
     setHistory(nextHistory);
@@ -87,19 +95,25 @@ export default function Game() {
     setIsMovesReverse(!isMovesReverse);
   }
 
-  let moves = history.map((squares, move) => {
+  let moves = history.map(({squares, row, col}, move) => {
     let description;
     let element = null;
 
     if (move === currentMove) {
-      description = 'You are on the go #' + move;
+      description = currentMove === 9
+        ? 'The result is a draw'
+        : row !== null && col !== null
+          ? `You are on the go # ${move} [${row}:${col}]`
+          : `You are on the go # ${move}`;
       element = (
         <span>
           {description}
         </span>
       );
     } else {
-      description = 'Go to move #' + move;
+      description = row !== null && col !== null
+        ? `Go to move # ${move} [${row}:${col}]`
+        : `Go to move # ${move}`;
       element = (
         <button onClick={() => jumpTo(move)}>
           {description}
@@ -155,7 +169,7 @@ function calculateWinner(squares) {
       squares[a] === squares[b] &&
       squares[a] === squares[c]
     ) {
-      return squares[a];
+      return [a, b, c];
     }
   }
 
